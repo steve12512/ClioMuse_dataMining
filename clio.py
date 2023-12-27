@@ -5,6 +5,8 @@ import os
 
 #SET THE METHODS WE WILL BE USING
 
+output_loc = './outputfiles/'
+
 #read and instantiate dataframe
 def combine_review_sheets():
     # File path to your Excel file
@@ -73,9 +75,6 @@ def combine_booking_sheets():
         
         # Append this DataFrame to the combined DataFrame
         combined_df = pd.concat([combined_df, df], ignore_index=True)
-
-    # Save the combined DataFrame to a new Excel file
-    combined_df.to_excel('combined_data.xlsx', index=False)  # Replace with your desired output file path
     
     #rename the dataframe to dataframe2
     dataframe2 = combined_df
@@ -94,7 +93,7 @@ def create_successful():
     if 'Overall Experience' in successful.columns:
         successful = successful[successful['Overall Experience'].isin(['Excellent(5 stars)', 'Positive (4 stars)', 'Excellent (5*)', 'Positive (4*)', '5*', '4*'])]
     
-    successful.to_excel('Successful.xlsx', index = False)
+    successful.to_excel(output_loc + 'Successful.xlsx', index = False)
     
     return successful
 
@@ -103,7 +102,7 @@ def go_together():
     #find which tours go together. to do that we will use the groupby operator on the second dataframe
     grouped = dataframe2.groupby('seller_name',)['product_code'].agg(list).reset_index()
     grouped.columns = ['seller name', 'product code']
-    grouped.to_excel('grouped.xlsx', index = False)
+    grouped.to_excel(output_loc + 'grouped.xlsx', index = False)
 
     #now create a dictionary, so that for each seller we have the name of the tours he provides, instead of their codes
     map_together(grouped)
@@ -116,7 +115,7 @@ def map_together(grouped):
 
     #map the columns to product names using the product dictionary
     grouped2['product_name'] = grouped2['product code'].apply(lambda codes: ', '.join(product_dict.get(code, '') for code in codes))
-    grouped2.to_excel('sellernames_tours.xlsx', index = False)
+    grouped2.to_excel(output_loc + 'sellernames_tours.xlsx', index = False)
 
 
 
@@ -129,7 +128,7 @@ def create_dictionary():
     df_product = pd.DataFrame(list(mapping.items()), columns=['product_code', 'product_title'])
 
     #save the DataFrame to an Excel file
-    df_product.to_excel('dictionary.xlsx', index=False)
+    df_product.to_excel(output_loc + 'dictionary.xlsx', index=False)
 
     return mapping
 
@@ -141,36 +140,27 @@ def recommended_stories():
     #From the column 'Name of Product Reviewed' we seperate with the '|' and take the second part
     recommended['Tour_Name'] = recommended['Name of Product Reviewed'].str.split('|').str[1]
     
-    recommended[['Tour_Name']].to_excel('recommended.xlsx', index=False)
+    recommended[['Tour_Name']].to_excel(output_loc + 'recommended.xlsx', index=False)
 
 #  START
 #from here and on our program starts
 
+#read dataframes from the excel files
 try:
-    # Check if the combined Excel file exists
     if os.path.exists('dataframe1.xlsx'):
-        # If it exists, read the combined DataFrame from the Excel file
         dataframe1 = pd.read_excel('dataframe1.xlsx')
     else:
-        # If it does not exist, call the function to create the DataFrame
         dataframe1 = combine_review_sheets()
         
-    # Check if the combined simple Excel file exists
     if os.path.exists('dataframe2.xlsx'):
-        # If it exists, read the combined simple DataFrame from the Excel file
         dataframe2 = pd.read_excel('dataframe2.xlsx')
     else:
-        # If it does not exist, call the function to create the simple DataFrame
         dataframe2 = combine_booking_sheets()
         
 except Exception as e:
-    # Handle any other exceptions that may occur
     print(f"An error occurred: {e}")
 
-#do an if statement searching in your files if you have "dataframe1.xlsx" and "dataframe2
-
-#what does a successful tour look like
-#now we have to create a new dataframe for the listings that have a rating of 4 and higher
+#1. What does a successful tour look like?
 successful = create_successful()
 
 #create a dictionary that maps product codes to product titles
@@ -178,7 +168,7 @@ product_dict = create_dictionary()
 
 
 #some breakpoints
-print('dataframe1 size is ;', dataframe1.size)
+print('dataframe1 size is ', dataframe1.size)
 print('successful is' , successful.size)
 print('dataframe 2 size is', dataframe2.size)
 
@@ -187,6 +177,3 @@ go_together()
 
 #which stories would we recommend
 recommended_stories()
-
-dataframe1.to_excel('dataframe1.xlsx', index=False)
-dataframe2.to_excel('dataframe2.xlsx', index=False)
