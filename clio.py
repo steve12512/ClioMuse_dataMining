@@ -5,28 +5,45 @@ import os
 
 #SET THE METHODS WE WILL BE USING
 
-output_loc = './outputfiles/'
+def read_files():
+    #read dataframes from the excel files
 
-#read and instantiate dataframe
+    try:
+        if os.path.exists('dataframe1.xlsx'):
+            dataframe1 = pd.read_excel('dataframe1.xlsx')
+        else:
+            dataframe1 = combine_review_sheets()
+            
+        if os.path.exists('dataframe2.xlsx'):
+            dataframe2 = pd.read_excel('dataframe2.xlsx')
+        else:
+            dataframe2 = combine_booking_sheets()
+            
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    return dataframe1, dataframe2
+
 def combine_review_sheets():
+    #read and instantiate dataframe
+
     # File path to your Excel file
     file_path = 'reviews data.xlsx'  # Replace with your actual file path
 
-    # Load Excel file
+    #load Excel file
     xlsx = pd.ExcelFile(file_path)
 
-    # Collect all unique column titles from each sheet
+    #collect all unique column titles from each sheet
     all_columns = []
 
-    # Iterate through each sheet to collect column names
+    #iterate through each sheet to collect column names
     for sheet_name in xlsx.sheet_names:
         df = pd.read_excel(file_path, sheet_name=sheet_name, header=1, nrows=0)  # Read only the second row for column names
         all_columns.extend([col for col in df.columns if col not in all_columns and not 'Unnamed' in str(col)])
 
-    # Initialize an empty DataFrame to store combined data
+    #initialize an empty DataFrame to store combined data
     combined_df = pd.DataFrame()
 
-    # Iterate through each sheet
+    #iterate through each sheet
     for sheet_name in xlsx.sheet_names:
         # Read the sheet into a DataFrame, starting from the second row for data
         df = pd.read_excel(file_path, sheet_name=sheet_name, header=1)
@@ -56,7 +73,7 @@ def combine_review_sheets():
     return dataframe1
 
 def combine_booking_sheets():
-        # File path to your Excel file
+     # File path to your Excel file
     file_path = 'Booking Stats.xlsx'  # Replace with your actual file path
 
     # Load Excel file
@@ -83,9 +100,9 @@ def combine_booking_sheets():
 
 
 
-#create a new dataframe that contains only the listings with a rating of 4 or higher
 def create_successful():
-    
+    #create a new dataframe that contains only the listings with a rating of 4 or higher
+
     #first create  a copy of the original dataframe to operate upon
     successful = dataframe1.copy()
     
@@ -144,21 +161,9 @@ def recommended_stories():
 
 #  START
 #from here and on our program starts
+output_loc = './outputfiles/'
 
-#read dataframes from the excel files
-try:
-    if os.path.exists('dataframe1.xlsx'):
-        dataframe1 = pd.read_excel('dataframe1.xlsx')
-    else:
-        dataframe1 = combine_review_sheets()
-        
-    if os.path.exists('dataframe2.xlsx'):
-        dataframe2 = pd.read_excel('dataframe2.xlsx')
-    else:
-        dataframe2 = combine_booking_sheets()
-        
-except Exception as e:
-    print(f"An error occurred: {e}")
+dataframe1, dataframe2 = read_files()
 
 #1. What does a successful tour look like?
 successful = create_successful()
