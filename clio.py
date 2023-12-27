@@ -2,29 +2,86 @@
 import pandas as pd
 import matplotlib as plt
 
-#display all columns
-pd.set_option('display.max_columns', None)
-
 #SET THE METHODS WE WILL BE USING
 
 #read and instantiate dataframe
-def create_dataframes():
+def combine_review_sheets():
+    # File path to your Excel file
+    file_path = 'reviews data.xlsx'  # Replace with your actual file path
 
-    #read the whole excel file and then save the name of each sheet
-    all = pd.ExcelFile('reviews data.xlsx')
-    names = all.sheet_names
+    # Load Excel file
+    xlsx = pd.ExcelFile(file_path)
 
-    #merge the sheet names in a new column
-    dataframe1 = pd.concat([pd.read_excel(all, sheet_name = s, header= 1).assign(sheet_name = s) for s in names])
+    # Collect all unique column titles from each sheet
+    all_columns = []
 
-    #do the same for the second dataframe
-    all = pd.ExcelFile('Booking Stats.xlsx')
-    names = all.sheet_names
+    # Iterate through each sheet to collect column names
+    for sheet_name in xlsx.sheet_names:
+        df = pd.read_excel(file_path, sheet_name=sheet_name, header=1, nrows=0)  # Read only the second row for column names
+        all_columns.extend([col for col in df.columns if col not in all_columns and not 'Unnamed' in str(col)])
 
-    #merge the sheet names in a new column
-    dataframe2 = pd.concat([pd.read_excel(all, sheet_name = s).assign(sheet_name = s) for s in names])
+    # Initialize an empty DataFrame to store combined data
+    combined_df = pd.DataFrame()
 
-    return dataframe1, dataframe2
+    # Iterate through each sheet
+    for sheet_name in xlsx.sheet_names:
+        # Read the sheet into a DataFrame, starting from the second row for data
+        df = pd.read_excel(file_path, sheet_name=sheet_name, header=1)
+
+        # Iterate through each row to find the first entirely empty row
+        for i in range(len(df)):
+            if pd.isna(df.iloc[i]).all():  # Check if all elements in the row are NaN
+                break
+        # Keep only the data above the first entirely empty row
+        df = df.iloc[:i]
+
+        # Add a column to indicate the source sheet
+        df['Source Sheet'] = sheet_name
+        
+        # Append this DataFrame to the combined DataFrame
+        combined_df = pd.concat([combined_df, df], ignore_index=True, sort=False)
+
+    # Reindex the combined DataFrame to include all collected columns plus the Source Sheet column
+    combined_df = combined_df.reindex(columns=all_columns + ['Source Sheet'])
+
+    #in the first column of combined_df turn "0" to "FALSE" and "1" to "TRUE"
+    combined_df['Important Information'] = combined_df['Important Information'].replace({0: 'FALSE', 1: 'TRUE'})
+
+    #rename the dataframe to dataframe1
+    dataframe1 = combined_df
+    
+    return dataframe1
+
+def combine_booking_sheets():
+        # File path to your Excel file
+    file_path = 'Booking Stats.xlsx'  # Replace with your actual file path
+
+    # Load Excel file
+    xlsx = pd.ExcelFile(file_path)
+
+    # Initialize an empty DataFrame to store combined data
+    combined_df = pd.DataFrame()
+
+    # Iterate through each sheet
+    for sheet_name in xlsx.sheet_names:
+        # Read the sheet into a DataFrame, using the first row as the header
+        df = pd.read_excel(file_path, sheet_name=sheet_name)
+        
+        # Add a column to indicate the source sheet
+        df['Source Sheet'] = sheet_name
+        
+        # Append this DataFrame to the combined DataFrame
+        combined_df = pd.concat([combined_df, df], ignore_index=True)
+
+    # Save the combined DataFrame to a new Excel file
+    combined_df.to_excel('combined_data.xlsx', index=False)  # Replace with your desired output file path
+    
+    #rename the dataframe to dataframe2
+    dataframe2 = combined_df
+    
+    return dataframe2
+
+
 
 #create a new dataframe that contains only the listings with a rating of 4 or higher
 def create_successful():
@@ -36,11 +93,9 @@ def create_successful():
     if 'Overall Experience' in successful.columns:
         successful = successful[successful['Overall Experience'].isin(['Excellent(5 stars)', 'Positive (4 stars)', 'Excellent (5*)', 'Positive (4*)', '5*', '4*'])]
     
-    return successful
-
-def save_toExcel():
     successful.to_excel('Successful.xlsx', index = False)
-
+    
+    return successful
 
 def go_together():
 
@@ -89,7 +144,8 @@ def recommended_stories():
 
 #  START
 #from here and on our program starts
-dataframe1, dataframe2 = create_dataframes()
+dataframe1 = combine_review_sheets()
+dataframe2 = combine_booking_sheets()
 
 #what does a successful tour look like
 #now we have to create a new dataframe for the listings that have a rating of 4 and higher
@@ -104,13 +160,11 @@ print('dataframe1 size is ;', dataframe1.size)
 print('successful is' , successful.size)
 print('dataframe 2 size is', dataframe2.size)
 
-
-#save the successful visits to an external excel file
-save_toExcel()
-
-
 #which tours go together
 go_together()
 
 #which stories would we recommend
 recommended_stories()
+
+dataframe1.to_excel('dataframe1.xlsx', index=False)
+dataframe2.to_excel('dataframe2.xlsx', index=False)
