@@ -70,11 +70,19 @@ def combine_review_sheets():
     #rename the dataframe to dataframe1
     dataframe1 = combined_df
     
+    dataframe1.to_excel('dataframe1.xlsx', index = False)
+    
     return dataframe1
 
 def combine_booking_sheets():
-     # File path to your Excel file
+    # File path to your Excel file
     file_path = 'Booking Stats.xlsx'  # Replace with your actual file path
+
+    # List of month names to include
+    month_names = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+    ]
 
     # Load Excel file
     xlsx = pd.ExcelFile(file_path)
@@ -84,17 +92,20 @@ def combine_booking_sheets():
 
     # Iterate through each sheet
     for sheet_name in xlsx.sheet_names:
-        # Read the sheet into a DataFrame, using the first row as the header
-        df = pd.read_excel(file_path, sheet_name=sheet_name)
-        
-        # Add a column to indicate the source sheet
-        df['Source Sheet'] = sheet_name
-        
-        # Append this DataFrame to the combined DataFrame
-        combined_df = pd.concat([combined_df, df], ignore_index=True)
+        if sheet_name in month_names:  # Only combine if the sheet is a month
+            # Read the sheet into a DataFrame, using the first row as the header
+            df = pd.read_excel(file_path, sheet_name=sheet_name)
+            
+            # Add a column to indicate the source sheet
+            df['Source Sheet'] = sheet_name
+            
+            # Append this DataFrame to the combined DataFrame
+            combined_df = pd.concat([combined_df, df], ignore_index=True)
     
-    #rename the dataframe to dataframe2
+    # Rename the combined DataFrame to dataframe2
     dataframe2 = combined_df
+    
+    dataframe2.to_excel('dataframe2.xlsx', index = False)
     
     return dataframe2
 
