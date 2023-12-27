@@ -1,6 +1,7 @@
 #import what you have to
 import pandas as pd
 import matplotlib as plt
+import os
 
 #SET THE METHODS WE WILL BE USING
 
@@ -144,8 +145,29 @@ def recommended_stories():
 
 #  START
 #from here and on our program starts
-dataframe1 = combine_review_sheets()
-dataframe2 = combine_booking_sheets()
+
+try:
+    # Check if the combined Excel file exists
+    if os.path.exists('dataframe1.xlsx'):
+        # If it exists, read the combined DataFrame from the Excel file
+        dataframe1 = pd.read_excel('dataframe1.xlsx')
+    else:
+        # If it does not exist, call the function to create the DataFrame
+        dataframe1 = combine_review_sheets()
+        
+    # Check if the combined simple Excel file exists
+    if os.path.exists('dataframe2.xlsx'):
+        # If it exists, read the combined simple DataFrame from the Excel file
+        dataframe2 = pd.read_excel('dataframe2.xlsx')
+    else:
+        # If it does not exist, call the function to create the simple DataFrame
+        dataframe2 = combine_booking_sheets()
+        
+except Exception as e:
+    # Handle any other exceptions that may occur
+    print(f"An error occurred: {e}")
+
+#do an if statement searching in your files if you have "dataframe1.xlsx" and "dataframe2
 
 #what does a successful tour look like
 #now we have to create a new dataframe for the listings that have a rating of 4 and higher
