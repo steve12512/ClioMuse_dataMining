@@ -105,11 +105,32 @@ def combine_booking_sheets():
     # Rename the combined DataFrame to dataframe2
     dataframe2 = combined_df
     
+    dataframe2 = manipulate_dataframe2(dataframe2)
+    
     dataframe2.to_excel('dataframe2.xlsx', index = False)
     
     return dataframe2
 
+def manipulate_dataframe2(dataframe2):
+    # Language codes mapping based on the provided information
+    language_codes = {
+        'Greek': 'GR', 'English': 'EN', 'Chinese': 'CH', 'Italian': 'IT',
+        'German': 'DE', 'French': 'FR', 'Russian': 'RU', 'Spanish': 'ES',
+        'Romanian': 'RO', 'Serbian': 'SR', 'Turkish': 'TR', 'Hebrew': 'HE',
+        'Czech': 'CS', 'Hungarian': 'HU', 'Polish': 'PL', 'Bosnian': 'BS',
+        'Albanian': 'SQ', 'Irish': 'GA', 'Norwegian': 'NO', 'Portuguese': 'PT',
+        'Korean': 'KO', 'Japanese': 'JA'
+    }
 
+    # Function to map full language name to language code
+    def map_language_to_code(language):
+        return language_codes.get(language, None)
+
+    # Apply the function to the 'Language' column to create a new 'Language Code' column
+    # Replace 'LanguageColumnName' with the actual name of the column in dataframe2 that contains language names
+    dataframe2['Language Code'] = dataframe2['language'].apply(map_language_to_code)
+
+    return dataframe2
 
 def create_successful():
     #create a new dataframe that contains only the listings with a rating of 4 or higher
