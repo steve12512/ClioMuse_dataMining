@@ -169,10 +169,17 @@ def add_ticket_cost():
     
     #fill the NaN values with 0
     dataframe2['Ticket Price'].fillna(0, inplace=True)
-    
-    dataframe2.to_excel('dataframe2.xlsx', index = False)
-    
+        
     return dataframe2
+
+def profit():
+        
+        #calculate the profit
+        dataframe2['Profit'] = dataframe2['retail_price'] - dataframe2['Ticket Price']
+        
+        dataframe2.to_excel('dataframe2.xlsx', index = False)
+        
+        return dataframe2
 
 def create_successful():
     #create a new dataframe that contains only the listings with a rating of 4 or higher
@@ -239,7 +246,11 @@ output_loc = './outputfiles/'
 
 dataframe1, dataframe2 = read_files()
 
+#add the ticket cost
 dataframe2 = add_ticket_cost()
+
+#get the profit
+dataframe2 = profit()
 
 #1. What does a successful tour look like?
 successful = create_successful()
