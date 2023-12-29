@@ -106,9 +106,7 @@ def combine_booking_sheets():
     dataframe2 = combined_df
     
     dataframe2 = manipulate_dataframe2(dataframe2)
-    
-    dataframe2.to_excel('dataframe2.xlsx', index = False)
-    
+        
     return dataframe2
 
 def manipulate_dataframe2(dataframe2):
@@ -131,6 +129,57 @@ def manipulate_dataframe2(dataframe2):
     dataframe2['Language Code'] = dataframe2['language'].apply(map_language_to_code)
 
     return dataframe2
+
+def add_ticket_cost():
+    
+    # Load the "ticket cost" sheet into a DataFrame
+    ticket_cost_df = pd.read_excel('Booking Stats.xlsx', sheet_name='Ticket Cost')
+    
+    # Set the product code as the index for easier access
+    ticket_cost_df.set_index('Product Code', inplace=True)
+        
+    # Concatenate the product_code and Language Code
+    dataframe2['Full Product Code'] = dataframe2['product_code'] + dataframe2['Language Code']
+    
+    # Iterate over each row in dataframe2
+    for index, row in dataframe2.iterrows():
+        # Get the full product code for the current row
+        full_product_code = row['Full Product Code']
+        # Get the month for the current row, assuming the 'month' column format is 'Month YYYY'
+        month = row['month'].split()[0]  # Take only the first part, which is the month name
+        
+        # Find the price in the ticket cost dataframe
+        if full_product_code in ticket_cost_df.index:
+            # Extract the price for the corresponding month
+            price = ticket_cost_df.at[full_product_code, month]
+            # Check if the price is a Series or a single value
+            if isinstance(price, pd.Series):
+                price = price.iloc[0]  # Take the first element of the Series
+            elif isinstance(price, str):
+                # Clean up the price to be a float (remove '€' and convert to float)
+                price = float(price.replace('€', ''))
+        else:
+            # If the product code is not found, set the price to None or a default value
+            price = 0
+        
+        dataframe2.at[index, 'Ticket Price'] = price
+    
+    #drop the 'Full Product Code' column
+    dataframe2.drop(columns=['Full Product Code'], inplace=True)
+    
+    #fill the NaN values with 0
+    dataframe2['Ticket Price'].fillna(0, inplace=True)
+        
+    return dataframe2
+
+def profit():
+        
+        #calculate the profit
+        dataframe2['Profit'] = dataframe2['retail_price'] - dataframe2['Ticket Price']
+        
+        dataframe2.to_excel('dataframe2.xlsx', index = False)
+        
+        return dataframe2
 
 def create_successful():
     #create a new dataframe that contains only the listings with a rating of 4 or higher
@@ -192,6 +241,12 @@ def recommended_stories():
 output_loc = './outputfiles/'
 
 dataframe1, dataframe2 = read_files()
+
+#add the ticket cost
+dataframe2 = add_ticket_cost()
+
+#get the profit
+dataframe2 = profit()
 
 #1. What does a successful tour look like?
 successful = create_successful()
