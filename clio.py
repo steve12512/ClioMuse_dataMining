@@ -147,7 +147,6 @@ def create_successful():
     return successful
 
 def go_together():
-
     #find which tours go together. to do that we will use the groupby operator on the second dataframe
     grouped = dataframe2.groupby('seller_name',)['product_code'].agg(list).reset_index()
     grouped.columns = ['seller name', 'product code']
@@ -158,7 +157,6 @@ def go_together():
 
 
 def map_together(grouped):
-
     #create a copy of the dataframe to operate upon
     grouped2 = grouped.copy()
 
@@ -169,7 +167,6 @@ def map_together(grouped):
 
 
 def create_dictionary():
-    
     #map product codes to product titles
     mapping = dict(zip(dataframe2['product_code'] , dataframe2['product_title']))
 
@@ -182,7 +179,6 @@ def create_dictionary():
     return mapping
 
 def recommended_stories():
-    
     #We take the name of the tours of the successful visits
     recommended = successful.copy()
     
@@ -191,7 +187,7 @@ def recommended_stories():
     
     recommended[['Tour_Name']].to_excel(output_loc + 'recommended.xlsx', index=False)
 
-#  START
+#START
 #from here and on our program starts
 output_loc = './outputfiles/'
 
