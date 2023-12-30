@@ -283,6 +283,20 @@ def recommended_stories():
     #save the grouped_profit to an excel file
     grouped_profit.to_excel(output_loc + 'recommended_by_profit.xlsx', index=False)
         
+def optimum_number_of_stories():
+    #create a copy of the dataframe2 to operate upon
+    dataframe2_copy = dataframe2.copy()
+    
+    #count how many tours each row has by counting the commas in the tours column
+    dataframe2_copy['tours'] = dataframe2_copy['tours'].str.count(',') + 1
+  
+    #group by the number of tours and calculate the sum of num_of_travellers
+    optimum_number_of_stories = dataframe2_copy.groupby('tours')['num_of_travellers'].sum().reset_index()
+    
+    #ascending order
+    optimum_number_of_stories = optimum_number_of_stories.sort_values(by=['num_of_travellers'], ascending=False)
+    
+    optimum_number_of_stories.to_excel(output_loc + 'optimum_number_of_stories.xlsx', index=False)
 
 #START
 #make folder called outputfiles
@@ -310,7 +324,10 @@ print('dataframe 2 size is', dataframe2.size)
 go_together()
 
 #profit per tour
-profit_per_tour = profit_per_tour()
+profit_per_tour()
 
 #3. Which stories would we recommend
 recommended_stories()
+
+#4. What is the most optimum number of stories??
+optimum_number_of_stories()
