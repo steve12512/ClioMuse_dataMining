@@ -236,6 +236,18 @@ def recommended_stories():
     
     recommended[['Tour_Name']].to_excel(output_loc + 'recommended.xlsx', index=False)
 
+def upsell():
+    #create a copy of the dataframe2 to operate upon
+    dataframe2_copy = dataframe2.copy()
+    
+    #group by Source Sheet and calculate the sum of num_of_travellers
+    upsell = dataframe2_copy.groupby('Source Sheet')['num_of_travellers'].sum().reset_index()
+    
+    #ascending order
+    upsell = upsell.sort_values(by=['num_of_travellers'], ascending=False)
+    
+    upsell.to_excel(output_loc + 'upsell.xlsx', index=False)
+
 #START
 #from here and on our program starts
 output_loc = './outputfiles/'
@@ -263,5 +275,19 @@ print('dataframe 2 size is', dataframe2.size)
 #which tours go together
 go_together()
 
+<<<<<<< Updated upstream
 #which stories would we recommend
+recommended_stories()recommended_stories()
+=======
+#profit per tour
+profit_per_tour()
+
+#3. Which stories would we recommend
 recommended_stories()
+
+#4. What is the most optimum number of stories??
+optimum_number_of_stories()
+
+#5. When is the best time to upsell?
+upsell()
+>>>>>>> Stashed changes
