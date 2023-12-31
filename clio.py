@@ -227,6 +227,16 @@ def create_dictionary():
 
     return mapping
 
+def profit_per_tour():
+    # Now group by 'product_code' and calculate the sum and mean of 'Profit'
+    profit = dataframe2.groupby('product_code')['Profit'].agg(['sum', 'mean']).reset_index()
+
+    # Rename the columns for clarity
+    profit.columns = ['product_code', 'Total Profit', 'Average Profit']
+
+    # Save the grouped data to a new Excel file
+    profit.to_excel(output_loc + 'grouped_profit.xlsx', index=False)
+    
 def recommended_stories():
     #We take the name of the tours of the successful visits
     recommended = successful.copy()
@@ -236,6 +246,21 @@ def recommended_stories():
     
     recommended[['Tour_Name']].to_excel(output_loc + 'recommended.xlsx', index=False)
 
+def optimum_number_of_stories():
+    #create a copy of the dataframe2 to operate upon
+    dataframe2_copy = dataframe2.copy()
+    
+    #count how many tours each row has by counting the commas in the tours column
+    dataframe2_copy['tours'] = dataframe2_copy['tours'].str.count(',') + 1
+  
+    #group by the number of tours and calculate the sum of num_of_travellers
+    optimum_number_of_stories = dataframe2_copy.groupby('tours')['num_of_travellers'].sum().reset_index()
+    
+    #ascending order
+    optimum_number_of_stories = optimum_number_of_stories.sort_values(by=['num_of_travellers'], ascending=False)
+    
+    optimum_number_of_stories.to_excel(output_loc + 'optimum_number_of_stories.xlsx', index=False)
+    
 def upsell():
     #create a copy of the dataframe2 to operate upon
     dataframe2_copy = dataframe2.copy()
@@ -275,10 +300,6 @@ print('dataframe 2 size is', dataframe2.size)
 #which tours go together
 go_together()
 
-<<<<<<< Updated upstream
-#which stories would we recommend
-recommended_stories()
-=======
 #profit per tour
 profit_per_tour()
 
@@ -290,4 +311,3 @@ optimum_number_of_stories()
 
 #5. When is the best time to upsell?
 upsell()
->>>>>>> Stashed changes
