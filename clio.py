@@ -277,7 +277,6 @@ go_together()
 
 <<<<<<< Updated upstream
 #which stories would we recommend
-recommended_stories()recommended_stories()
 recommended_stories()
 =======
 #profit per tour
