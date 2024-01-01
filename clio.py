@@ -314,11 +314,28 @@ def prompt_for_download():
     #create a copy of the dataframe2 to operate upon
     prompt = dataframe2.copy()
     
+    month_names = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+    ]
+    
     #group by Source Sheet and calculate the sum of num_of_travellers
-    prompt_for_download = prompt.groupby('month')['num_of_travellers'].sum().reset_index()
+    prompt_for_download = prompt.groupby('Source Sheet')['num_of_travellers'].sum().reset_index()
     
     #ascending order
     prompt_for_download = prompt_for_download.sort_values(by=['num_of_travellers'], ascending=False)
+    
+    #keep only the first row
+    prompt_for_download = prompt_for_download.head(1)
+    
+    #check which month is at the top
+    top_month = prompt_for_download.iloc[0]['Source Sheet']
+    
+    #get the month before the top month
+    month_before = month_names[month_names.index(top_month) - 1]
+    
+    #write at the 3rd row 1st cell the month before the top month
+    prompt_for_download.at[2, 'Source Sheet'] = month_before
     
     prompt_for_download.to_excel(output_loc + 'prompt_for_download.xlsx', index=False)
 
