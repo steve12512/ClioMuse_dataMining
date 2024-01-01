@@ -310,6 +310,19 @@ def upsell():
     
     upsell.to_excel(output_loc + 'upsell.xlsx', index=False)
 
+def prompt_for_download():
+    #create a copy of the dataframe2 to operate upon
+    prompt = dataframe2.copy()
+    
+    #group by Source Sheet and calculate the sum of num_of_travellers
+    prompt_for_download = prompt.groupby('month')['num_of_travellers'].sum().reset_index()
+    
+    #ascending order
+    prompt_for_download = prompt_for_download.sort_values(by=['num_of_travellers'], ascending=False)
+    
+    prompt_for_download.to_excel(output_loc + 'prompt_for_download.xlsx', index=False)
+
+
 #START
 #make folder called outputfiles
 if not os.path.exists('outputfiles'):
@@ -346,3 +359,6 @@ optimum_number_of_stories()
 
 #5. When is the best time to upsell?
 upsell()
+
+#6. When is the best time to prompt for download?
+prompt_for_download()
