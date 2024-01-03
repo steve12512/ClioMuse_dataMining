@@ -397,6 +397,9 @@ def seasonal_patterns_growth_decline_trends():
 #make folder called outputfiles
 if not os.path.exists('outputfiles'):
     os.makedirs('outputfiles')
+if not os.path.exists('seasonal_patterns'):
+    os.mkdirs('seasonal_patterns')
+
 
 #from here and on our program starts
 output_loc = './outputfiles/'
