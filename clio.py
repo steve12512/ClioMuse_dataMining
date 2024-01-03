@@ -339,6 +339,24 @@ def prompt_for_download():
     
     prompt_for_download.to_excel(output_loc + 'prompt_for_download.xlsx', index=False)
 
+def ask_for_review():
+    #when is the best time to ask for a review? the answer is obvious. it lies upon the months that have the highest percentages of 4 and 5 star reviews
+
+    #copy a dataframe to operate upon
+    df = dataframe1.copy()
+
+    #group by month and count the occurences of 4 and 5 star reviews
+    df = df[df['Overall Experience'].isin(['Excellent (5 stars)', 'Positive (4 stars)', 'Excellent (5*)', 'Positive (4*)', '5*', '4*'])]
+    df['Rating'] = df['Overall Experience'].apply(lambda x: '4s' if x in ['Positive (4 stars)', 'Positive (4*)', '4*'] else '5s')
+    df = df.groupby(['Source Sheet', 'Rating']).size().unstack(fill_value=0)
+
+    
+    #save the result to an excel file
+    df.to_excel('best_time_for_review.xlsx', index= True)
+    return None
+
+
+
 
 #START
 #make folder called outputfiles
@@ -379,3 +397,6 @@ upsell()
 
 #6. When is the best time to prompt for download?
 prompt_for_download()
+
+#7 when is the best time to ask for a review
+ask_for_review()
