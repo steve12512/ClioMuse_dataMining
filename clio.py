@@ -398,7 +398,7 @@ def seasonal_patterns_growth_decline_trends():
 if not os.path.exists('outputfiles'):
     os.makedirs('outputfiles')
 if not os.path.exists('seasonal_patterns'):
-    os.mkdirs('seasonal_patterns')
+    os.makedirs('seasonal_patterns')
 
 
 #from here and on our program starts
