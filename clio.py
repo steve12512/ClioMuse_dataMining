@@ -2,6 +2,7 @@
 import pandas as pd
 import matplotlib as plt
 import os
+import numpy as np 
 
 #SET THE METHODS WE WILL BE USING
 
@@ -322,7 +323,7 @@ def prompt_for_download():
     #group by Source Sheet and calculate the sum of num_of_travellers
     prompt_for_download = prompt.groupby('Source Sheet')['num_of_travellers'].sum().reset_index()
     
-    #ascending order
+    #descending order
     prompt_for_download = prompt_for_download.sort_values(by=['num_of_travellers'], ascending=False)
     
     #keep only the first row
@@ -356,6 +357,40 @@ def ask_for_review():
     return None
 
 
+def seasonal_patterns_growth_decline_trends():
+    #in this function we want to find certain patterns and trends based on the season. the season by itself implicates a groupby months
+    #we will groupby month, product_country and Language Code. then we will sum the profit and number of travellers for these columns
+
+    #create a copy of the original dataframe to operate upon
+    df = dataframe2.copy()
+
+    #transofrm month to datetime so that we can operate upon it and sort by it.
+    df['month'] = pd.to_datetime(df['month'], format='%B %Y', errors='coerce').dt.month_name()
+
+    #group by 'month', 'product_country', and 'Language Code', then aggregate
+    df = df.groupby(['month', 'product_country', 'Language Code']).agg({'Profit': 'sum', 'num_of_travellers': 'size'}).reset_index()
+
+    #sort by 'month' in descending order
+    month_order = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+    df['month'] = pd.Categorical(df['month'], categories=month_order, ordered=True)
+    df = df.sort_values(by=['month', 'product_country', 'Language Code'], ascending= [True, True, True])
+
+    #now we have to calculate the percentage change per month by grouping by correctly. [
+    df['profit_change'] = df.groupby(['product_country', 'Language Code'])['Profit'].pct_change() * 100
+    df['travellers_change'] = df.groupby(['product_country', 'Language Code'])['num_of_travellers'].pct_change() * 100
+
+    #now we will only keep the values that have a diffence of trends greater than 50%, and then do the same for those whose difference >100%, and then for those with difference >200%
+    low_difference = df[np.abs(df['travellers_change']) >= 50]
+    med_difference = df[np.abs(df['travellers_change']) >= 100]
+    high_difference = df[np.abs(df['travellers_change'])>= 200]
+
+
+    #save files
+    df.to_excel('seasonal_patterns/seasonal_patterns.xlsx', index=True)
+    low_difference.to_excel('seasonal_patterns/low.xlsx', index= True)
+    med_difference.to_excel('seasonal_patterns/med.xlsx', index = True)
+    high_difference.to_excel('seasonal_patterns/high.xlsx', index = True)
+    return None
 
 
 #START
@@ -400,3 +435,6 @@ prompt_for_download()
 
 #7 when is the best time to ask for a review
 ask_for_review()
+
+#8 seasonal patterns and growth/decline trends
+seasonal_patterns_growth_decline_trends()
