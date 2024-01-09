@@ -211,20 +211,15 @@ def create_successful():
     if 'Overall Experience' in successful.columns:
         successful = successful[successful['Overall Experience'].isin(['Excellent(5 stars)', 'Positive (4 stars)', 'Excellent (5*)', 'Positive (4*)', '5*', '4*'])]
     
-    # Use an absolute path for output location
-    output_loc = 'C:\\Users\\Tonia\\Desktop\\DataAnalytics\\clio\\outputfiles'
 
-    successful.to_excel(output_loc + 'Successful.xlsx', index = False)
+    successful.to_excel('Successful.xlsx', index = False)
     
     return successful
 
 
-import os
-import pandas as pd
-
-def analyze_successful(output_loc):
+def analyze_successful():
     # Construct the file path for Successful.xlsx using os.path.join
-    successful_excel_path = os.path.join(output_loc, 'Successful.xlsx')
+    successful_excel_path = ('Successful.xlsx')
 
     try:
         # Read the Successful.xlsx file
@@ -240,7 +235,7 @@ def analyze_successful(output_loc):
         tour_counts_pivot.loc['Total'] = tour_counts_pivot.sum()
 
         # Save the counts to a new Excel file
-        output_tour_counts_file = os.path.join(output_loc, 'TourCountsPerMonth.xlsx')
+        output_tour_counts_file = ('TourCountsPerMonth.xlsx')
         tour_counts_pivot.to_excel(output_tour_counts_file)
 
         return tour_counts_pivot, output_tour_counts_file
@@ -248,13 +243,8 @@ def analyze_successful(output_loc):
         print(f"An error occurred while reading the Successful.xlsx file: {e}")
         return None, None
 
-# Assuming output_loc is a valid folder path
-output_loc = r'C:\Users\Tonia\Desktop\DataAnalytics\clio\outputfiles'
+tour_counts_per_month, tour_counts_file = analyze_successful()
 
-tour_counts_per_month, tour_counts_file = analyze_successful(output_loc)
-
-
-import pandas as pd
 
 def count_product_types_by_codes(file_path, product_codes, output_file_path='product_types_count_result.xlsx'):
     # Load the Excel file into a DataFrame
@@ -273,17 +263,14 @@ def count_product_types_by_codes(file_path, product_codes, output_file_path='pro
     product_types_count.to_excel(output_file_path, index=False)
     print(f"Results saved to {output_file_path}")
 
-# Replace 'dataframe2.xlsx' with the actual path to your Excel file
-# Replace ['AU460', 'AU552', 'AU280', 'AU487', 'your_fifth_product_code'] with your actual product codes
-count_product_types_by_codes(r'C:\Users\Tonia\Desktop\DataAnalytics\clio\dataframe2.xlsx', ['STL107_403', 'STL240_181_51_459', 'STL512','STL535', 'TO539'])
 
-import pandas as pd
+
 
 def average_travelers_by_tours(file_path, product_codes, output_file_path='average_travelers_result.xlsx'):
-    # Load the Excel file into a DataFrame
+    #load the Excel file into a DataFrame
     df = pd.read_excel(file_path)
 
-    # Filter the DataFrame for September 2023 and specified toursjn
+    #filter the DataFrame for September 2023 and specified toursjn
     september_df = df[(df['month'] == 'September 2023') & df['product_code'].isin(product_codes)]
 
     # Calculate the average number of travelers for each tour
@@ -295,10 +282,6 @@ def average_travelers_by_tours(file_path, product_codes, output_file_path='avera
     # Save the result to an Excel file
     average_travelers.to_excel(output_file_path, index=False)
     print(f"Results saved to {output_file_path}")
-
-# Replace 'dataframe2.xlsx' with the actual path to your Excel file
-# Replace ['STL107_403', 'STL240_181_51_459', 'STL535', 'TO539'] with your actual tour names
-average_travelers_by_tours(r'C:\Users\Tonia\Desktop\DataAnalytics\clio\dataframe2.xlsx', ['STL107_403', 'STL240_181_51_459', 'STL535', 'STL512', 'TO539'])
 
 
 
@@ -499,6 +482,7 @@ successful = create_successful()
 #create a dictionary that maps product codes to product titles
 product_dict = create_dictionary()
 
+tour_counts_per_month, tour_counts_file = analyze_successful()
 
 #some breakpoints
 print('dataframe1 size is ', dataframe1.size)
@@ -507,6 +491,7 @@ print('dataframe 2 size is', dataframe2.size)
 
 #2. Which tours go together
 go_together()
+
 
 #profit per tour
 profit_per_tour()
