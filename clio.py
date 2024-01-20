@@ -211,23 +211,15 @@ def create_successful():
     if 'Overall Experience' in successful.columns:
         successful = successful[successful['Overall Experience'].isin(['Excellent(5 stars)', 'Positive (4 stars)', 'Excellent (5*)', 'Positive (4*)', '5*', '4*'])]
     
-
-    successful.to_excel('Successful.xlsx', index = False)
+    successful.to_excel(output_loc + 'Successful.xlsx', index = False)
     
     return successful
 
 
 def analyze_successful():
-    # Construct the file path for Successful.xlsx using os.path.join
-    successful_excel_path = ('Successful.xlsx')
-
     try:
-        # Read the Successful.xlsx file
-        successful = pd.read_excel(successful_excel_path)
-
         # Count the occurrences of each tour in each month
         tour_counts = successful.groupby(['Source Sheet', 'product_code']).size().reset_index(name='Count')
-
         # Pivot the table to have months as columns and tours as rows
         tour_counts_pivot = tour_counts.pivot(index='product_code', columns='Source Sheet', values='Count').fillna(0).astype(int)
 
@@ -236,15 +228,12 @@ def analyze_successful():
 
         # Save the counts to a new Excel file
         output_tour_counts_file = ('TourCountsPerMonth.xlsx')
-        tour_counts_pivot.to_excel(output_tour_counts_file)
+        tour_counts_pivot.to_excel(output_loc + output_tour_counts_file)
 
-        return tour_counts_pivot, output_tour_counts_file
+        return tour_counts_pivot
     except Exception as e:
         print(f"An error occurred while reading the Successful.xlsx file: {e}")
         return None, None
-
-tour_counts_per_month, tour_counts_file = analyze_successful()
-
 
 def count_product_types_by_codes(file_path, product_codes, output_file_path='product_types_count_result.xlsx'):
     # Load the Excel file into a DataFrame
@@ -423,7 +412,7 @@ def ask_for_review():
 
     
     #save the result to an excel file
-    df.to_excel('best_time_for_review.xlsx', index= True)
+    df.to_excel(output_loc + 'best_time_for_review.xlsx', index= True)
     return None
 
 
@@ -482,7 +471,7 @@ successful = create_successful()
 #create a dictionary that maps product codes to product titles
 product_dict = create_dictionary()
 
-tour_counts_per_month, tour_counts_file = analyze_successful()
+tour_counts_per_month = analyze_successful()
 
 #some breakpoints
 print('dataframe1 size is ', dataframe1.size)
