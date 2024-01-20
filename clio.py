@@ -205,21 +205,29 @@ def create_successful():
     #create a new dataframe that contains only the listings with a rating of 4 or higher
 
     #first create  a copy of the original dataframe to operate upon
-    successful = dataframe1.copy()
+    successful_by_Exprerience = dataframe1.copy()
+    successful_by_number_of_travellers = dataframe2.copy()
     
     #filter the successful visits
-    if 'Overall Experience' in successful.columns:
-        successful = successful[successful['Overall Experience'].isin(['Excellent(5 stars)', 'Positive (4 stars)', 'Excellent (5*)', 'Positive (4*)', '5*', '4*'])]
+    if 'Overall Experience' in successful_by_Exprerience.columns:
+        successful_by_Exprerience = successful_by_Exprerience[successful_by_Exprerience['Overall Experience'].isin(['Excellent(5 stars)', 'Positive (4 stars)', 'Excellent (5*)', 'Positive (4*)', '5*', '4*'])]
     
-    successful.to_excel(output_loc + 'Successful.xlsx', index = False)
+    #group by month column "Source Sheet", "product_code" and calculate the sum of num_of_travellers
+    successful_by_number_of_travellers = successful_by_number_of_travellers.groupby(['Source Sheet', 'product_code'])['num_of_travellers'].sum().reset_index()
     
-    return successful
+    #sort by num_of_travellers in descending order
+    successful_by_number_of_travellers = successful_by_number_of_travellers.sort_values(by=['num_of_travellers'], ascending=False)  
+    
+    successful_by_Exprerience.to_excel(output_loc + 'Successful_by_Exprerience.xlsx', index = False)
+    successful_by_number_of_travellers.to_excel(output_loc + 'Successful_by_number_of_travellers.xlsx', index = False)
+    
+    return successful_by_Exprerience, successful_by_number_of_travellers
 
 
 def analyze_successful():
     try:
         # Count the occurrences of each tour in each month
-        tour_counts = successful.groupby(['Source Sheet', 'product_code']).size().reset_index(name='Count')
+        tour_counts = successful_by_Exprerience.groupby(['Source Sheet', 'product_code']).size().reset_index(name='Count')
         # Pivot the table to have months as columns and tours as rows
         tour_counts_pivot = tour_counts.pivot(index='product_code', columns='Source Sheet', values='Count').fillna(0).astype(int)
 
@@ -466,7 +474,7 @@ output_loc = './outputfiles/'
 dataframe1, dataframe2 = read_files()
 
 #1. What does a successful tour look like?
-successful = create_successful()
+successful_by_Exprerience ,successful_by_number_of_travellers = create_successful()
 
 #create a dictionary that maps product codes to product titles
 product_dict = create_dictionary()
@@ -475,7 +483,7 @@ tour_counts_per_month = analyze_successful()
 
 #some breakpoints
 print('dataframe1 size is ', dataframe1.size)
-print('successful is' , successful.size)
+print('successful is' , successful_by_Exprerience.size)
 print('dataframe 2 size is', dataframe2.size)
 
 #2. Which tours go together
