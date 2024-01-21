@@ -207,10 +207,11 @@ def create_successful():
     #first create  a copy of the original dataframe to operate upon
     successful_by_Exprerience = dataframe1.copy()
     successful_by_number_of_travellers = dataframe2.copy()
-    
+    pd.set_option('display.max_columns', None)
+    print(dataframe1[dataframe1['Source Sheet'] == 'April']) 
     #filter the successful visits
     if 'Overall Experience' in successful_by_Exprerience.columns:
-        successful_by_Exprerience = successful_by_Exprerience[successful_by_Exprerience['Overall Experience'].isin(['Excellent(5 stars)', 'Positive (4 stars)', 'Excellent (5*)', 'Positive (4*)', '5*', '4*'])]
+        successful_by_Exprerience = successful_by_Exprerience[successful_by_Exprerience['Overall Experience'].isin(['Excellent(5 stars)', 'Positive (4 stars)', 'Excellent (5*)', 'Positive (4*)', '5*', '4*','Positive \n(4 stars)'])]
     
     #group by month column "Source Sheet", "product_code" and calculate the sum of num_of_travellers
     successful_by_number_of_travellers = successful_by_number_of_travellers.groupby(['Source Sheet', 'product_code'])['num_of_travellers'].sum().reset_index()
