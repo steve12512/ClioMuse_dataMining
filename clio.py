@@ -207,12 +207,29 @@ def create_successful():
     #first create  a copy of the original dataframe to operate upon
     successful_by_Exprerience = dataframe1.copy()
     successful_by_number_of_travellers = dataframe2.copy()
-    pd.set_option('display.max_columns', None)
-    print(dataframe1[dataframe1['Source Sheet'] == 'April']) 
+
     #filter the successful visits
     if 'Overall Experience' in successful_by_Exprerience.columns:
         successful_by_Exprerience = successful_by_Exprerience[successful_by_Exprerience['Overall Experience'].isin(['Excellent(5 stars)', 'Positive (4 stars)', 'Excellent (5*)', 'Positive (4*)', '5*', '4*','Positive \n(4 stars)'])]
     
+    #for each month calculate the number of travelers
+    travellers = dataframe2.groupby('month')['num_of_travellers'].sum().reset_index()
+
+    successful_by_Exprerience_percentage = successful_by_Exprerience.groupby('Source Sheet').size().reset_index()
+    successful_by_Exprerience_percentage = successful_by_Exprerience_percentage.rename(columns= {'Source Sheet' : 'month'})
+    print(successful_by_Exprerience_percentage)
+    travellers['month'] = travellers['month'].str.replace('2023','').str.strip()
+    print(travellers.columns, successful_by_Exprerience_percentage.columns)
+
+    for idx, (row_percentage, row_experience) in enumerate(zip(successful_by_Exprerience_percentage['month'], travellers['month'])):
+        print (row_experience, row_percentage)
+        if row_percentage == row_experience:
+            successful_by_Exprerience_percentage['values'] = int(row_percentage)/ int(row_experience)
+
+
+    print(successful_by_Exprerience_percentage.head(20))
+
+
     #group by month column "Source Sheet", "product_code" and calculate the sum of num_of_travellers
     successful_by_number_of_travellers = successful_by_number_of_travellers.groupby(['Source Sheet', 'product_code'])['num_of_travellers'].sum().reset_index()
     
