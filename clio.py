@@ -217,17 +217,35 @@ def create_successful():
 
     successful_by_Exprerience_percentage = successful_by_Exprerience.groupby('Source Sheet').size().reset_index()
     successful_by_Exprerience_percentage = successful_by_Exprerience_percentage.rename(columns= {'Source Sheet' : 'month'})
-    print(successful_by_Exprerience_percentage)
     travellers['month'] = travellers['month'].str.replace('2023','').str.strip()
-    print(travellers.columns, successful_by_Exprerience_percentage.columns)
 
-    for idx, (row_percentage, row_experience) in enumerate(zip(successful_by_Exprerience_percentage['month'], travellers['month'])):
-        print (row_experience, row_percentage)
-        if row_percentage == row_experience:
-            successful_by_Exprerience_percentage['values'] = int(row_percentage)/ int(row_experience)
+    #now we have to order the months in both dataframes
+    #sort by 'month' in descending order
+    months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September']
+
+    successful_by_Exprerience_percentage['month'] = pd.Categorical(successful_by_Exprerience_percentage['month'], categories=months, ordered=True)
+    successful_by_Exprerience_percentage = successful_by_Exprerience_percentage.sort_values(by='month', ascending= True)
+
+    #since the travellers dataframe has 3 months which the other df doesnt have, we will have to drop these months
+    travellers = travellers[~travellers['month'].isin(['November', 'October', 'December'])]
+
+    travellers['month'] = pd.Categorical(travellers['month'], categories=months, ordered=True)
+    travellers = travellers.sort_values(by='month', ascending= True)
 
 
-    print(successful_by_Exprerience_percentage.head(20))
+    print(travellers, successful_by_Exprerience_percentage)
+    print(successful_by_Exprerience_percentage.columns)
+
+
+    #for value1,value2 in zip(travellers, successful_by_Exprerience_percentage):
+        #suc
+
+
+
+
+
+
+
 
 
     #group by month column "Source Sheet", "product_code" and calculate the sum of num_of_travellers
