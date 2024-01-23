@@ -231,21 +231,21 @@ def create_successful():
 
     travellers['month'] = pd.Categorical(travellers['month'], categories=months, ordered=True)
     travellers = travellers.sort_values(by='month', ascending= True)
+    
+    #create a new column that stores the values of succesful ratings / number of travellers. below is the process of how these values are calculated
+    successful_by_Exprerience_percentage['percentage'] = 0.00
+    
+    for index, row in successful_by_Exprerience_percentage.iterrows():
+        month1 = row['month']
+        month2 = travellers.loc[travellers['month'] == month1, 'month'].values
+        if len(month2) > 0:
+            month2 = month2[0]
+            num_of_travellers = travellers.loc[travellers['month'] == month2, 'num_of_travellers'].values[0]
+            successful_by_Exprerience_percentage.at[index, 'percentage'] = row[0] / num_of_travellers * 100
 
-
-    print(travellers, successful_by_Exprerience_percentage)
-    print(successful_by_Exprerience_percentage.columns)
-
-
-    #for value1,value2 in zip(travellers, successful_by_Exprerience_percentage):
-        #suc
-
-
-
-
-
-
-
+    successful_by_Exprerience_percentage = successful_by_Exprerience_percentage.sort_values(by = 'percentage', ascending= False)
+    successful_by_Exprerience_percentage = successful_by_Exprerience_percentage.drop(columns=0)
+    successful_by_Exprerience_percentage.to_excel('outputfiles\successful_months_by_percentage.xlsx', index= False)
 
 
     #group by month column "Source Sheet", "product_code" and calculate the sum of num_of_travellers
