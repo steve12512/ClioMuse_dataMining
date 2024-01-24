@@ -473,7 +473,7 @@ def seasonal_patterns_growth_decline_trends():
     df['month'] = pd.to_datetime(df['month'], format='%B %Y', errors='coerce').dt.month_name()
 
     #group by 'month', 'product_country', and 'Language Code', then aggregate
-    df = df.groupby(['month', 'product_country', 'Language Code']).agg({'Profit': 'sum', 'num_of_travellers': 'size'}).reset_index()
+    df = df.groupby(['month', 'product_country', 'Language Code']).agg({'Profit': 'sum', 'num_of_travellers': 'sum'}).reset_index()
 
     #sort by 'month' in descending order
     month_order = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
