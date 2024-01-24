@@ -485,16 +485,31 @@ def seasonal_patterns_growth_decline_trends():
     df['travellers_change'] = df.groupby(['product_country', 'Language Code'])['num_of_travellers'].pct_change() * 100
 
     #now we will only keep the values that have a diffence of trends greater than 50%, and then do the same for those whose difference >100%, and then for those with difference >200%
-    low_difference = df[np.abs(df['travellers_change']) >= 50]
-    med_difference = df[np.abs(df['travellers_change']) >= 100]
-    high_difference = df[np.abs(df['travellers_change'])>= 200]
+    travellers_low_difference = df[np.abs(df['travellers_change']) >= 50]
+    travellers_med_difference = df[np.abs(df['travellers_change']) >= 100]
+    travellers_high_difference = df[np.abs(df['travellers_change'])>= 200]
 
+    profit_low_difference = df[np.abs(df['profit_change']) >= 50]
+    profit_med_difference = df[np.abs(df['profit_change']) >= 100]
+    profit_high_difference = df[np.abs(df['profit_change'])>= 200]
+
+    #order some our dataframes
+    profit_high_difference = profit_high_difference.sort_values(by = 'profit_change', ascending= False)
+    travellers_high_difference = travellers_high_difference.sort_values(by = 'travellers_change', ascending= False)
 
     #save files
+    profit_low_difference.to_excel('seasonal_patterns/profit_low.xlsx', index= True)
+    profit_med_difference.to_excel('seasonal_patterns/profit_med.xlsx', index = True)
+    profit_high_difference.to_excel('seasonal_patterns/profit_high.xlsx', index = True)
+
+    travellers_low_difference.to_excel('seasonal_patterns/travellers_low.xlsx', index= True)
+    travellers_med_difference.to_excel('seasonal_patterns/travellers_med.xlsx', index = True)
+    travellers_high_difference.to_excel('seasonal_patterns/travellers_high.xlsx', index = True)
+
+
+
+
     df.to_excel('seasonal_patterns/seasonal_patterns.xlsx', index=True)
-    low_difference.to_excel('seasonal_patterns/low.xlsx', index= True)
-    med_difference.to_excel('seasonal_patterns/med.xlsx', index = True)
-    high_difference.to_excel('seasonal_patterns/high.xlsx', index = True)
     return None
 
 
