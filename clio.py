@@ -256,7 +256,9 @@ def create_successful():
     
     successful_by_Exprerience.to_excel(output_loc + 'Successful_by_Exprerience.xlsx', index = False)
     successful_by_number_of_travellers.to_excel(output_loc + 'Successful_by_number_of_travellers.xlsx', index = False)
-    
+    successful_by_number_of_travellers2 = successful_by_number_of_travellers.groupby('Source Sheet')['num_of_travellers'].size().reset_index()
+    successful_by_number_of_travellers2 = successful_by_number_of_travellers2.sort_values(by = 'num_of_travellers', ascending= False)
+    successful_by_number_of_travellers2.to_excel('outputfiles\\travellers_by_month.xlsx', index = False)
     return successful_by_Exprerience, successful_by_number_of_travellers
 
 
