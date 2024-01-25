@@ -425,13 +425,30 @@ def upsell():
     #create a copy of the dataframe2 to operate upon
     dataframe2_copy = dataframe2.copy()
     
-    #group by Source Sheet and calculate the sum of num_of_travellers
-    upsell = dataframe2_copy.groupby('Source Sheet')['num_of_travellers'].sum().reset_index()
+    #split the "booking_date" column to 2 columns seperated by " "
+    dataframe2_copy[['booking_date', 'booking_time']] = dataframe2_copy['booking_date'].str.split(' ', expand=True)
+    
+    #filter only "August" and "September"
+    dataframe2_copy = dataframe2_copy[dataframe2_copy['Source Sheet'].isin(['August', 'September'])]
+    
+    #from the booking_time keep only the 2 first digits
+    dataframe2_copy['booking_time'] = dataframe2_copy['booking_time'].str[:2]
+    
+    #group by Source Sheet, booking_time and calculate the sum of num_of_travellers
+    upsell = dataframe2_copy.groupby(['Source Sheet', 'booking_time'])['num_of_travellers'].sum().reset_index()
     
     #ascending order
     upsell = upsell.sort_values(by=['num_of_travellers'], ascending=False)
-    
     upsell.to_excel(output_loc + 'upsell.xlsx', index=False)
+    
+    #keep august for one excel file and september for the other
+    august_upsell = upsell[upsell['Source Sheet'] == 'August']
+    september_upsell = upsell[upsell['Source Sheet'] == 'September']
+    
+    #save the results to excel files
+    august_upsell.to_excel(output_loc + 'august_upsell.xlsx', index=False)
+    september_upsell.to_excel(output_loc + 'september_upsell.xlsx', index=False)
+    
 
 def prompt_for_download():
     #create a copy of the dataframe2 to operate upon
