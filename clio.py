@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib as plt
 import os
 import numpy as np 
+from sklearn.cluster import KMeans
 
 #SET THE METHODS WE WILL BE USING
 
@@ -318,8 +319,24 @@ def average_travelers_by_tours(file_path, product_codes, output_file_path='avera
     average_travelers.to_excel(output_file_path, index=False)
     print(f"Results saved to {output_file_path}")
 
-
-
+def testk_means():
+    copy = dataframe2.copy()
+    
+    #filter only the "Sheets" that have "August, September"
+    copy = copy[copy['Source Sheet'].isin(['August', 'September'])]
+    
+    #do k means clustering on the "num_of_travellers" column
+    kmeans = KMeans(n_clusters=4, random_state=0).fit(copy[['num_of_travellers']])
+    
+    #to excel
+    copy['cluster'] = kmeans.labels_
+    
+    #keep only the top 3 profit tours per cluster
+    copy = copy.sort_values(by=['Profit'], ascending=False)
+    copy = copy.groupby('cluster').head(3)
+     
+    copy.to_excel('outputfiles\kmeans.xlsx', index = False)
+    
 def go_together():
     #find which tours go together. to do that we will use the groupby operator on the second dataframe
     grouped = dataframe2.groupby('seller_name')['product_code'].agg(list).reset_index()
@@ -563,3 +580,8 @@ ask_for_review()
 
 #8 seasonal patterns and growth/decline trends
 seasonal_patterns_growth_decline_trends()
+
+
+
+#test k means clustering
+testk_means()
