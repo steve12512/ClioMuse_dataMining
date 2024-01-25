@@ -335,7 +335,7 @@ def testk_means():
     copy = copy.sort_values(by=['Profit'], ascending=False)
     copy = copy.groupby('cluster').head(3)
      
-    copy.to_excel('outputfiles\kmeans.xlsx', index = False)
+    copy.to_excel(output_loc + 'kmeans.xlsx', index = False)
     
 def go_together():
     #find which tours go together. to do that we will use the groupby operator on the second dataframe
