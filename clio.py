@@ -4,6 +4,7 @@ import matplotlib as plt
 import os
 import numpy as np 
 from sklearn.cluster import KMeans
+from sklearn.preprocessing import LabelEncoder
 
 #SET THE METHODS WE WILL BE USING
 
@@ -325,15 +326,22 @@ def testk_means():
     #filter only the "Sheets" that have "August, September"
     copy = copy[copy['Source Sheet'].isin(['August', 'September'])]
     
-    #do k means clustering on the "num_of_travellers" column
-    kmeans = KMeans(n_clusters=4, random_state=0).fit(copy[['num_of_travellers']])
+    #encode the "tours" column with label encoder
+    le = LabelEncoder()
+    copy['tours'] = le.fit_transform(copy['tours'])
+    
+    #do k means clustering on the "tours" column
+    kmeans = KMeans(n_clusters=3, random_state=0).fit(copy[['tours']])
     
     #to excel
     copy['cluster'] = kmeans.labels_
     
-    #keep only the top 3 profit tours per cluster
-    copy = copy.sort_values(by=['Profit'], ascending=False)
-    copy = copy.groupby('cluster').head(3)
+    #return the "tours" column to its original state
+    copy['tours'] = le.inverse_transform(copy['tours'])
+    
+    #keep only the top 10 num_of_travellers per cluster
+    copy = copy.sort_values(by=['num_of_travellers'], ascending=False)
+    copy = copy.groupby('cluster').head(10)
      
     copy.to_excel(output_loc + 'kmeans.xlsx', index = False)
     
