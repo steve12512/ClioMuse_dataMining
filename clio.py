@@ -593,9 +593,7 @@ product_dict = create_dictionary()
 tour_counts_per_month = analyze_successful()
 
 #some breakpoints
-print('dataframe1 size is ', dataframe1.size)
-print('successful is' , successful_by_Exprerience.size)
-print('dataframe 2 size is', dataframe2.size)
+
 
 #2. Which tours go together
 go_together()
