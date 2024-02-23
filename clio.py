@@ -497,10 +497,18 @@ def ask_for_review():
     df = df[df['Overall Experience'].isin(['Excellent (5 stars)', 'Positive (4 stars)', 'Excellent (5*)', 'Positive (4*)', '5*', '4*'])]
     df['Rating'] = df['Overall Experience'].apply(lambda x: '4s' if x in ['Positive (4 stars)', 'Positive (4*)', '4*'] else '5s')
     df = df.groupby(['Source Sheet', 'Rating']).size().unstack(fill_value=0)
+    merged_df = pd.merge(df, successful_by_number_of_travellers, on='Source Sheet', how='inner')
+    merged_df = merged_df.drop(columns=['product_code'])
+    merged_df.drop_duplicates(subset=['Source Sheet'], inplace=True)
 
-    
+
+
+
+    merged_df['success/travellers'] = (merged_df['4s'] + merged_df['5s']) / (merged_df['num_of_travellers'])
+    merged_df = merged_df.sort_values(by='success/travellers', ascending=False)
+
     #save the result to an excel file
-    df.to_excel(output_loc + 'best_time_for_review.xlsx', index= True)
+    merged_df.to_excel(output_loc + 'best_time_for_review.xlsx', index= True)
     return None
 
 
