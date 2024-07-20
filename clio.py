@@ -497,10 +497,18 @@ def ask_for_review():
     df = df[df['Overall Experience'].isin(['Excellent (5 stars)', 'Positive (4 stars)', 'Excellent (5*)', 'Positive (4*)', '5*', '4*'])]
     df['Rating'] = df['Overall Experience'].apply(lambda x: '4s' if x in ['Positive (4 stars)', 'Positive (4*)', '4*'] else '5s')
     df = df.groupby(['Source Sheet', 'Rating']).size().unstack(fill_value=0)
+    merged_df = pd.merge(df, successful_by_number_of_travellers, on='Source Sheet', how='inner')
+    merged_df = merged_df.drop(columns=['product_code'])
+    merged_df.drop_duplicates(subset=['Source Sheet'], inplace=True)
 
-    
+
+
+
+    merged_df['success/travellers'] = (merged_df['4s'] + merged_df['5s']) / (merged_df['num_of_travellers'])
+    merged_df = merged_df.sort_values(by='success/travellers', ascending=False)
+
     #save the result to an excel file
-    df.to_excel(output_loc + 'best_time_for_review.xlsx', index= True)
+    merged_df.to_excel(output_loc + 'best_time_for_review.xlsx', index= True)
     return None
 
 
@@ -526,6 +534,8 @@ def seasonal_patterns_growth_decline_trends():
     df['profit_change'] = df.groupby(['product_country', 'Language Code'])['Profit'].pct_change() * 100
     df['travellers_change'] = df.groupby(['product_country', 'Language Code'])['num_of_travellers'].pct_change() * 100
 
+
+
     #now we will only keep the values that have a diffence of trends greater than 50%, and then do the same for those whose difference >100%, and then for those with difference >200%
     travellers_low_difference = df[np.abs(df['travellers_change']) >= 50]
     travellers_med_difference = df[np.abs(df['travellers_change']) >= 100]
@@ -538,6 +548,19 @@ def seasonal_patterns_growth_decline_trends():
     #order some our dataframes
     profit_high_difference = profit_high_difference.sort_values(by = 'profit_change', ascending= False)
     travellers_high_difference = travellers_high_difference.sort_values(by = 'travellers_change', ascending= False)
+    travellers_high_difference_noneg = travellers_high_difference.copy()
+    travellers_high_difference_noneg = travellers_high_difference_noneg[travellers_high_difference_noneg['Language Code'] != 'EN']
+
+    #test df
+    test = df.copy().groupby(['month', 'product_country', 'Language Code']).agg({'num_of_travellers' : 'sum'})
+    test.to_excel('seasonal_patterns/test.xlsx', index = True)
+
+
+    travellers_high_difference['profit_change'] = travellers_high_difference['profit_change'].map('{:.2f}%'.format)
+    travellers_high_difference['travellers_change'] = travellers_high_difference['travellers_change'].map('{:.2f}%'.format)
+
+
+
 
     #save files
     profit_low_difference.to_excel('seasonal_patterns/profit_low.xlsx', index= True)
@@ -548,6 +571,7 @@ def seasonal_patterns_growth_decline_trends():
     travellers_med_difference.to_excel('seasonal_patterns/travellers_med.xlsx', index = True)
     travellers_high_difference.to_excel('seasonal_patterns/travellers_high.xlsx', index = True)
 
+    travellers_high_difference_noneg.to_excel('seasonal_patterns/travellers_high_difference_noneg.xlsx', index= True)
 
 
 
